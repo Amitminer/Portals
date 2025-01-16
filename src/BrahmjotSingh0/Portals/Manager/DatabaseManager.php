@@ -127,6 +127,7 @@ class DatabaseManager
         } else {
             $this->plugin->getLogger()->warning("Tried to delete portal $name, but it didn't exist.");
         }
+        /** @phpstan-ignore-next-line */
         return $deletedRows > 0;
     }
 
@@ -135,7 +136,6 @@ class DatabaseManager
         $result = yield from $this->database->asyncSelect(SqlQueries::EXISTS, [
             "name" => $name
         ]);
-        /** @phpstan-ignore-next-line */
         return $result !== null && count($result) > 0 && $result[0]["COUNT(*)"] > 0;
     }
 }
