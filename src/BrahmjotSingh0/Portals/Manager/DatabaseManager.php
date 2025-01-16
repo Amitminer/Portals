@@ -180,7 +180,7 @@ class DatabaseManager
         $rowsDeleted = $deletedRows[1];
 
         if ($rowsDeleted > 0) {
-            $this->plugin->getLogger()->info("Successfully deleted portal: $name");
+            // $this->plugin->getLogger()->info("Successfully deleted portal: $name");
         } else {
             $this->plugin->getLogger()->warning("Tried to delete portal $name, but it didn't exist.");
         }
@@ -202,7 +202,7 @@ class DatabaseManager
         if (empty($result)) {
             return false;
         }
-        $portalCount = $result[0]["portal_count"] ?? 0;
+        $portalCount = $result[0]["count"] ?? 0;
         return $portalCount > 0;
     }
 }
