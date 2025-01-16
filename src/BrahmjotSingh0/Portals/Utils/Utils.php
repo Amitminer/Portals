@@ -8,10 +8,18 @@ use pocketmine\Server;
 use pocketmine\math\Vector3;
 use pocketmine\player\Player;
 
-class Utils{
-
-      /**
+/**
+ * Provides utility methods for portal-related operations.
+ */
+class Utils
+{
+    /**
      * Checks if a position is within the bounds of a portal.
+     *
+     * @param Vector3 $position The position to check.
+     * @param Vector3 $pos1 The first corner of the portal bounds.
+     * @param Vector3 $pos2 The second corner of the portal bounds.
+     * @return bool True if the position is within the bounds, false otherwise.
      */
     public static function isWithinBounds(Vector3 $position, Vector3 $pos1, Vector3 $pos2): bool
     {
@@ -32,6 +40,9 @@ class Utils{
 
     /**
      * Executes a command as the player.
+     *
+     * @param Player $player The player executing the command.
+     * @param string $commandString The command(s) to execute, separated by commas.
      */
     public static function executeCommand(Player $player, string $commandString): void
     {

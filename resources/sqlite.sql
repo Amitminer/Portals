@@ -36,7 +36,7 @@ SELECT * FROM portals WHERE name = :name;
 
 -- #{ exists
 -- # :name string
-SELECT COUNT(*) FROM portals WHERE name = :name;
+SELECT COUNT(*) AS count FROM portals WHERE name = :name;
 -- #}
 
 -- #{ delete

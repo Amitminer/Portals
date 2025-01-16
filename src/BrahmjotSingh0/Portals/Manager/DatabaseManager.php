@@ -11,11 +11,23 @@ use poggit\libasynql\libasynql;
 use Generator;
 use Throwable;
 
+/**
+ * Manages database operations for the Portals plugin.
+ */
 class DatabaseManager
 {
+    /** @var Portals The plugin instance. */
     private Portals $plugin;
+
+    /** @var DataConnector The database connection. */
     private DataConnector $database;
 
+    /**
+     * Initializes the database connection.
+     *
+     * @param Portals $plugin The plugin instance.
+     * @throws Throwable If the database connection fails.
+     */
     public function __construct(Portals $plugin)
     {
         $this->plugin = $plugin;
@@ -29,6 +41,11 @@ class DatabaseManager
         }
     }
 
+    /**
+     * Loads or closes the database connection.
+     *
+     * @param bool $load Whether to load or close the database.
+     */
     public function getDatabase(bool $load = true): void
     {
         if ($load) {
@@ -42,6 +59,9 @@ class DatabaseManager
         }
     }
 
+    /**
+     * Initializes the database table.
+     */
     private function loadDatabase(): void
     {
         $this->database->executeGeneric(SqlQueries::CREATE_TABLE, [], function () {
@@ -51,6 +71,9 @@ class DatabaseManager
         });
     }
 
+    /**
+     * Closes the database connection.
+     */
     private function closeDatabase(): void
     {
         if (isset($this->database)) {
@@ -62,6 +85,14 @@ class DatabaseManager
         }
     }
 
+    /**
+     * Adds a new portal to the database.
+     *
+     * @param string $owner The owner of the portal.
+     * @param string $name The name of the portal.
+     * @param array $data The portal data to save.
+     * @return Generator
+     */
     public function addPortal(string $owner, string $name, array $data): Generator
     {
         yield from $this->database->asyncInsert(SqlQueries::SAVE, [
@@ -71,6 +102,13 @@ class DatabaseManager
         ]);
     }
 
+    /**
+     * Updates an existing portal in the database.
+     *
+     * @param string $name The name of the portal to update.
+     * @param array $data The updated portal data.
+     * @return Generator
+     */
     public function updatePortal(string $name, array $data): Generator
     {
         yield from $this->database->asyncInsert(SqlQueries::UPDATE, [
@@ -79,6 +117,12 @@ class DatabaseManager
         ]);
     }
 
+    /**
+     * Fetches all portals owned by a specific owner.
+     *
+     * @param string $owner The owner of the portals.
+     * @return Generator<array> Returns a generator yielding an array of portals.
+     */
     public function fetchPortalsByOwner(string $owner): Generator
     {
         $result = yield from $this->database->asyncSelect(SqlQueries::FETCH_BY_OWNER, [
@@ -101,6 +145,12 @@ class DatabaseManager
         return $result;
     }
 
+    /**
+     * Fetches a portal by its name.
+     *
+     * @param string $name The name of the portal.
+     * @return Generator<array|null> Returns a generator yielding the portal data or null if not found.
+     */
     public function fetchPortal(string $name): Generator
     {
         $result = yield from $this->database->asyncSelect(SqlQueries::FETCH_BY_NAME, [
@@ -116,26 +166,43 @@ class DatabaseManager
         return $portalData;
     }
 
+    /**
+     * Deletes a portal by its name.
+     *
+     * @param string $name The name of the portal to delete.
+     * @return Generator<string|int|bool> Returns a generator yielding true if the portal was deleted, false otherwise.
+     */
     public function deletePortal(string $name): Generator
     {
         $deletedRows = yield from $this->database->asyncInsert(SqlQueries::DELETE, [
             "name" => $name
         ]);
-        /** @phpstan-ignore-next-line */
-        if ($deletedRows > 0) {
-            // $this->plugin->getLogger()->info("Successfully deleted portal: $name");
+        $rowsDeleted = $deletedRows[1];
+
+        if ($rowsDeleted > 0) {
+            $this->plugin->getLogger()->info("Successfully deleted portal: $name");
         } else {
             $this->plugin->getLogger()->warning("Tried to delete portal $name, but it didn't exist.");
         }
-        /** @phpstan-ignore-next-line */
-        return $deletedRows > 0;
+        return $rowsDeleted > 0;
     }
 
+    /**
+     * Checks if a portal with the given name exists.
+     *
+     * @param string $name The name of the portal to check.
+     * @return Generator<bool> Returns a generator yielding true if the portal exists, false otherwise.
+     */
     public function isPortalExists(string $name): Generator
     {
         $result = yield from $this->database->asyncSelect(SqlQueries::EXISTS, [
             "name" => $name
         ]);
-        return $result !== null && count($result) > 0 && $result[0]["COUNT(*)"] > 0;
+
+        if (empty($result)) {
+            return false;
+        }
+        $portalCount = $result[0]["portal_count"] ?? 0;
+        return $portalCount > 0;
     }
 }

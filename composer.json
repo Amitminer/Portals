@@ -2,7 +2,7 @@
     "name": "brahmjotsingh0/portals",
     "type": "pocketmine-plugin",
     "scripts": {
-        "analyze": "vendor/bin/phpstan analyze src"
+        "analyze": "vendor/bin/phpstan analyze --level 5 src"
     },
     "require": {
         "phpstan/phpstan": "^1.10.29",
