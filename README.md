@@ -17,9 +17,7 @@ Welcome to the **Portals** plugin for PocketMine-MP! This plugin allows players 
 ## Commands
 
 - **/portal create portalname**: Create a new portal with the specified name.
-- **/portal pos1**: Set the first position of the portal by tapping a block.
-- **/portal pos2**: Set the second position of the portal by tapping a block.
-- **/portal addcommand portalname <player/server> command**: Add a command to be executed when a player enters the specified portal.
+- **/portal addcommand portalname command**: Add a command to be executed when a player enters the specified portal.
 - **/portal msg portalname message**: Set a message to be displayed when a player enters the specified portal.
 - **/portal delete portalname**: Delete the specified portal.
 
@@ -36,20 +34,17 @@ The configuration file (`config.yml`) is used to store portal data, including po
 ## Usage
 
 1. **Create a Portal**: Use `/portal create <portalname>` to create a new portal with the specified name.
-2. **Set Positions**: Use `/portal pos1` and `/portal pos2` to set the two opposite corners of the portal by tapping blocks.
-3. **Add Commands**: Use `/portal addcommand <portalname> <player/server> <command>` to add a command that will be executed when a player enters the portal.
-4. **Set Message**: Use `/portal msg <portalname> <message>` to set a message that will be displayed when a player enters the portal.
-5. **Delete a Portal**: Use `/portal delete <portalname>` to delete the specified portal.
+2. **Add Commands**: Use `/portal addcommand <portalname>  <command>` to add a command that will be executed when a player enters the portal.
+3. **Set Message**: Use `/portal msg <portalname> <message>` to set a message that will be displayed when a player enters the portal.
+4. **Delete a Portal**: Use `/portal delete <portalname>` to delete the specified portal.
 
 ## Example
 
 To create a portal named "example", set its positions, add a command, and set a message, follow these steps:
 
 1. `/portal create example`
-2. `/portal pos1` (tap a block)
-3. `/portal pos2` (tap another block)
-4. `/portal addcommand example player say Welcome to the portal!`
-5. `/portal msg example You have entered the example portal.`
+4. `/portal addcommand example "say Welcome to the portal!, say another command here"`
+5. `/portal msg example "You have entered the example portal."`
 
 ## Installation
 
@@ -64,6 +59,6 @@ If you encounter any issues or have any questions, please open an issue on the [
 ---
 
 **Author**: BrahmjotSingh0
-**Version**: 1.0.0  
+**Version**: 2.8.0 (not stable) 
 **API**: 5.0.0  
 **License**: MIT

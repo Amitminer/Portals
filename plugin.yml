@@ -1,14 +1,23 @@
 name: Portals
-main: BrahmjotSingh0\Portals\Main
-version: 1.0.1
+main: BrahmjotSingh0\Portals\Portals
+version: 2.8.0
 api: [5.0.0]
 author: BrahmjotSingh0
-commands:
-  portal:
-    description: Manage portals
-    usage: /portal <command>
-    permission: portals.command
 permissions:
   portals.command:
     description: Allows the player to use the portal commands
+    default: op
+  portals.addcommand:
+    default: op
+  portals.delete:
+    default: op
+  portals.create:
+    default: op
+  portals.list:
+    default: op
+  portals.pos1:
+    default: op
+  portals.pos2:
+    default: op
+  portals.msg:
     default: op

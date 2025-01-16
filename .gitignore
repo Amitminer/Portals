@@ -5,3 +5,5 @@
 /.idea/Portals.iml
 /.idea/vcs.xml
 /.idea/workspace.xml
+vendor
+composer.lock

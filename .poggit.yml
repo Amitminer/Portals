@@ -5,4 +5,11 @@ branches:
 projects:
   Portals:
     path: ""
+    libs: 
+     - src: Paroxity/Commando/Commando
+       version: ^3.1.0
+     - src: poggit/libasynql/libasynql
+       version: ^4.1.6
+     - src: sof3/await-generator/await-generator
+       version: ^3.1.0
 ...
