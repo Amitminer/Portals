@@ -7,7 +7,7 @@
     "require": {
         "phpstan/phpstan": "^1.10.29",
         "pocketmine/pocketmine-mp": "^5",
-        "paroxity/commando": "^3.0",
+        "paroxity/commando": "^3.2",
         "sof3/libasynql": "^4.2.0",
         "sof3/await-generator": "^3.6"
     },
