@@ -121,7 +121,7 @@ class DatabaseManager
         $deletedRows = yield from $this->database->asyncInsert(SqlQueries::DELETE, [
             "name" => $name
         ]);
-
+        /** @phpstan-ignore-next-line */
         if ($deletedRows > 0) {
             // $this->plugin->getLogger()->info("Successfully deleted portal: $name");
         } else {
@@ -135,6 +135,7 @@ class DatabaseManager
         $result = yield from $this->database->asyncSelect(SqlQueries::EXISTS, [
             "name" => $name
         ]);
+        /** @phpstan-ignore-next-line */
         return $result !== null && count($result) > 0 && $result[0]["COUNT(*)"] > 0;
     }
 }

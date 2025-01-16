@@ -100,7 +100,7 @@ class EventListener implements Listener
             $state['pos2'] = $posData;
             $this->plugin->getPortalManager()->setPlayerState($playerName, null);
 
-            Await::f2c(function () use ($state, $player, $posData): Generator {
+            Await::f2c(function () use ($state, $player): Generator {
                 $worldName = $player->getWorld()->getFolderName();
                 yield from $this->plugin->getDatabaseManager()->addPortal(
                     $player->getName(),
