@@ -48,17 +48,18 @@ class CreateSubCommand extends BaseSubCommand
         $manager = $plugin->getPortalManager();
 
         $portalName = $args['portalname'];
+        $playerName = $sender->getName();
 
-        // Check if the portal already exists
-        Await::f2c(function () use ($plugin, $manager, $sender, $portalName): \Generator {
-            $isExists = yield from $manager->isPortalExists($portalName);
+        // Check if the portal already exists for this player
+        Await::f2c(function () use ($plugin, $manager, $sender, $portalName, $playerName): \Generator {
+            $isExists = yield from $manager->isPortalExists($portalName, $playerName);
             if ($isExists) {
-                $sender->sendMessage("Portal '$portalName' already exists.");
+                $sender->sendMessage("You already have a portal named '$portalName'.");
                 return;
             }
 
             // Store the player's state for portal creation
-            $plugin->getPortalManager()->setPlayerState($sender->getName(), [
+            $plugin->getPortalManager()->setPlayerState($playerName, [
                 'portalName' => $portalName,
                 'step' => 'pos1'
             ]);

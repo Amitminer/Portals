@@ -41,10 +41,11 @@ class DeleteSubCommand extends BaseSubCommand
         $manager = $plugin->getPortalManager();
 
         $portalName = $args['portalname'];
+        $playerName = $sender->getName();
 
         // Check if the portal exists and delete it
-        Await::f2c(function () use ($manager, $sender, $portalName): \Generator {
-            $isExists = yield from $manager->isPortalExists($portalName);
+        Await::f2c(function () use ($manager, $sender, $portalName, $playerName): \Generator {
+            $isExists = yield from $manager->isPortalExists($portalName, $playerName);
             if (!$isExists) {
                 $sender->sendMessage("Portal '$portalName' does not exist.");
                 return;

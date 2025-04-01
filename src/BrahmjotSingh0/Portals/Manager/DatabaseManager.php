@@ -188,15 +188,42 @@ class DatabaseManager
     }
 
     /**
-     * Checks if a portal with the given name exists.
+     * Fetches all portals from the database.
+     *
+     * @return Generator<array> Returns a generator yielding an array of portals.
+     */
+    public function fetchAllPortals(): Generator
+    {
+        $result = yield from $this->database->asyncSelect(SqlQueries::FETCH_ALL);
+
+        foreach ($result as &$portal) {
+            if (!isset($portal['data'])) {
+                continue;
+            }
+
+            $decodedData = json_decode($portal['data'], true);
+            if (json_last_error() === JSON_ERROR_NONE) {
+                $portal['data'] = $decodedData;
+            } else {
+                $portal['data'] = [];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Checks if a portal with the given name exists for a specific owner.
      *
      * @param string $name The name of the portal to check.
+     * @param string $owner The owner to check for.
      * @return Generator<bool> Returns a generator yielding true if the portal exists, false otherwise.
      */
-    public function isPortalExists(string $name): Generator
+    public function isPortalExists(string $name, string $owner): Generator
     {
         $result = yield from $this->database->asyncSelect(SqlQueries::EXISTS, [
-            "name" => $name
+            "name" => $name,
+            "owner" => $owner
         ]);
 
         if (empty($result)) {

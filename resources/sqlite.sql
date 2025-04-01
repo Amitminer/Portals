@@ -4,9 +4,10 @@
 -- #{ createTable
 CREATE TABLE IF NOT EXISTS portals (
     id INTEGER PRIMARY KEY AUTOINCREMENT, -- Unique ID for each entry
-    name TEXT NOT NULL UNIQUE, -- Portal name (must be unique)
+    name TEXT NOT NULL, -- Portal name
     owner TEXT NOT NULL, -- Owner of the portal (player name)
-    data TEXT NOT NULL -- JSON-encoded portal data (worldName, pos1, pos2, message, cmd, etc.)
+    data TEXT NOT NULL, -- JSON-encoded portal data (worldName, pos1, pos2, message, cmd, etc.)
+    UNIQUE(name, owner) -- Make name unique per owner
 );
 -- #}
 
@@ -34,9 +35,14 @@ SELECT * FROM portals WHERE owner = :owner;
 SELECT * FROM portals WHERE name = :name;
 -- #}
 
+-- #{ fetchAll
+SELECT * FROM portals;
+-- #}
+
 -- #{ exists
 -- # :name string
-SELECT COUNT(*) AS count FROM portals WHERE name = :name;
+-- # :owner string
+SELECT COUNT(*) AS count FROM portals WHERE name = :name AND owner = :owner;
 -- #}
 
 -- #{ delete

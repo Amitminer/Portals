@@ -25,6 +25,9 @@ interface SqlQueries
     /** @var string Query identifier for fetching a portal by name. */
     public const FETCH_BY_NAME = "portals.fetchByName";
 
+    /** @var string Query identifier for fetching all portals. */
+    public const FETCH_ALL = "portals.fetchAll";
+
     /** @var string Query identifier for deleting a portal. */
     public const DELETE = "portals.delete";
 

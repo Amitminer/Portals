@@ -60,7 +60,7 @@ class AddCommandSubCommand extends BaseSubCommand
         // Add the command to the portal
         Await::f2c(function () use ($manager, $sender, $portalName, $command): \Generator {
             // Check if the portal exists
-            $isExists = yield from $manager->isPortalExists($portalName);
+            $isExists = yield from $manager->isPortalExists($portalName, $sender->getName());
             if (!$isExists) {
                 $sender->sendMessage("Portal '$portalName' does not exist.");
                 return;

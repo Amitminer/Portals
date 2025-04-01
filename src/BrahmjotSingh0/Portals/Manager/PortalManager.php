@@ -130,13 +130,14 @@ class PortalManager
     }
 
     /**
-     * Checks if a portal with the given name exists.
+     * Checks if a portal with the given name exists for a specific owner.
      *
      * @param string $name The name of the portal to check.
+     * @param string $owner The owner to check for.
      * @return Generator<mixed> Returns a generator yielding true if the portal exists, false otherwise.
      */
-    public function isPortalExists(string $name): Generator
+    public function isPortalExists(string $name, string $owner): Generator
     {
-        return yield from $this->databaseManager->isPortalExists($name);
+        return yield from $this->databaseManager->isPortalExists($name, $owner);
     }
 }

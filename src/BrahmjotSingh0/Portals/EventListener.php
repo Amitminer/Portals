@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace BrahmjotSingh0\Portals;
 
 use BrahmjotSingh0\Portals\Utils\Utils;
+use BrahmjotSingh0\Portals\Manager\CacheManager;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerMoveEvent;
 use pocketmine\event\block\BlockBreakEvent;
 use pocketmine\math\Vector3;
 use SOFe\AwaitGenerator\Await;
 use Generator;
+use pocketmine\player\Player;
+use pocketmine\world\Position;
 
 /**
  * Handles events related to portals, such as player movement and block breaking.
@@ -22,70 +25,92 @@ class EventListener implements Listener
 
     /** @var array<string, bool> Tracks players who have been notified about entering a portal. */
     private array $notifiedPlayers = [];
+    
+    /** @var CacheManager The cache manager for portal data. */
+    private CacheManager $cacheManager;
 
     /**
      * Initializes the EventListener with the plugin instance.
      *
      * @param Portals $plugin The plugin instance.
+     * @param CacheManager $cacheManager The cache manager instance.
      */
-    public function __construct(Portals $plugin)
+    public function __construct(Portals $plugin, CacheManager $cacheManager)
     {
         $this->plugin = $plugin;
+        $this->cacheManager = $cacheManager;
     }
 
     /**
      * Handles the PlayerMoveEvent to check if a player enters a portal.
+     * Only processes the event if the player has moved to a different block.
      *
      * @param PlayerMoveEvent $event The PlayerMoveEvent instance.
      */
     public function onPlayerMove(PlayerMoveEvent $event): void
     {
+        // Check if the player has actually moved to a different block
+        $from = $event->getFrom();
+        $to = $event->getTo();
+        if ((int)$from->getX() === (int)$to->getX() &&(int)$from->getY() === (int)$to->getY() &&(int)$from->getZ() === (int)$to->getZ()
+        ) {
+            return;
+        }
+        
         $player = $event->getPlayer();
-        $position = $player->getPosition();
+        $this->processPortalInteraction($player, $player->getPosition());
+    }
+    
+    /**
+     * Processes a player's interaction with portals.
+     * 
+     * @param Player $player The player to check
+     * @param Position $position The player's position
+     */
+    private function processPortalInteraction(Player $player, Position $position): void
+    {
+        $playerName = $player->getName();
+        $worldName = $player->getWorld()->getFolderName();
+        
+        // Get portals for the player's current world
+        $relevantPortals = $this->cacheManager->getPortalsByWorld($worldName);
+        
+        foreach ($relevantPortals as $portal) {
+            $portalData = $portal['data'];
 
-        Await::f2c(function () use ($player, $position): Generator {
-            // Fetch portals owned by the player
-            $data = yield from $this->plugin->getDatabaseManager()->fetchPortalsByOwner($player->getName());
-
-            foreach ($data as $portal) {
-                $portalData = $portal['data'];
-
-                // Skip if required portal data is missing
-                if (!isset($portalData["pos1"], $portalData["pos2"], $portalData["worldName"])) {
-                    continue;
-                }
-
-                // Skip if the player is not in the correct world
-                if ($player->getWorld()->getFolderName() !== $portalData["worldName"]) {
-                    continue;
-                }
-
-                // Convert portal positions to Vector3
-                $pos1 = new Vector3($portalData["pos1"]["x"], $portalData["pos1"]["y"], $portalData["pos1"]["z"]);
-                $pos2 = new Vector3($portalData["pos2"]["x"], $portalData["pos2"]["y"], $portalData["pos2"]["z"]);
-
-                // Check if the player is within the portal bounds
-                if (Utils::isWithinBounds($position, $pos1, $pos2)) {
-                    // Notify the player if they haven't been notified already
-                    if (!isset($this->notifiedPlayers[$player->getName()])) {
-                        $this->notifiedPlayers[$player->getName()] = true;
-
-                        // Send a message if one is set
-                        if (isset($portalData["message"])) {
-                            $player->sendMessage($portalData["message"]);
-                        }
-
-                        // Execute a command if one is set
-                        if (isset($portalData["cmd"]) && $portalData["cmd"] !== "") {
-                            Utils::executeCommand($player, $portalData["cmd"]);
-                        }
-                    }
-                } else {
-                    // Remove the player from the notified list if they leave the portal bounds
-                    unset($this->notifiedPlayers[$player->getName()]);
-                }
+            // Skip if required portal data is missing
+            if (!isset($portalData["pos1"], $portalData["pos2"])) {
+                continue;
             }
-        });
+
+            // Convert portal positions to Vector3
+            $pos1 = new Vector3($portalData["pos1"]["x"], $portalData["pos1"]["y"], $portalData["pos1"]["z"]);
+            $pos2 = new Vector3($portalData["pos2"]["x"], $portalData["pos2"]["y"], $portalData["pos2"]["z"]);
+
+            // Check if the player is within the portal bounds
+            if (Utils::isWithinBounds($position, $pos1, $pos2)) {
+                // If player is not already notified
+                if (!isset($this->notifiedPlayers[$playerName])) {
+                    $this->notifiedPlayers[$playerName] = true;
+
+                    // Send a message if one is set
+                    if (isset($portalData["message"]) && $portalData["message"] !== "") {
+                        $player->sendMessage($portalData["message"]);
+                    }
+
+                    // Execute a command if one is set
+                    if (isset($portalData["cmd"]) && $portalData["cmd"] !== "") {
+                        Utils::executeCommand($player, $portalData["cmd"]);
+                    }
+                }
+                
+                // Player is in at least one portal, no need to check other portals
+                return;
+            }
+        }
+        
+        // If we get here, player isn't in any portal
+        unset($this->notifiedPlayers[$playerName]);
     }
 
     /**
@@ -108,11 +133,11 @@ class EventListener implements Listener
         $block = $event->getBlock();
         $position = $block->getPosition();
 
-        // Prepare position data
+        // Prepare position data directly
         $posData = [
             'x' => $position->getX(),
             'y' => $position->getY(),
-            'z' => $position->getZ()
+            'z' => $position->getZ(),
         ];
 
         // Handle setting position 1
@@ -131,15 +156,23 @@ class EventListener implements Listener
             // Save the portal to the database
             Await::f2c(function () use ($state, $player): Generator {
                 $worldName = $player->getWorld()->getFolderName();
-                yield from $this->plugin->getDatabaseManager()->addPortal(
+                $portalData = [
+                    'worldName' => $worldName,
+                    'pos1' => $state['pos1'],
+                    'pos2' => $state['pos2']
+                ];
+                
+                $newPortal = yield from $this->plugin->getDatabaseManager()->addPortal(
                     $player->getName(),
                     $state['portalName'],
-                    [
-                        'worldName' => $worldName,
-                        'pos1' => $state['pos1'],
-                        'pos2' => $state['pos2']
-                    ]
+                    $portalData
                 );
+                
+                // Add the new portal to the cache
+                if ($newPortal !== null) {
+                    $this->cacheManager->addPortal($newPortal);
+                }
+                
                 $player->sendMessage("Portal '{$state['portalName']}' created successfully with the selected positions.");
             });
 

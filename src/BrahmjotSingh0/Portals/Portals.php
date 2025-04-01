@@ -8,6 +8,7 @@ use BrahmjotSingh0\Portals\Commands\PortalsCommand;
 use BrahmjotSingh0\Portals\Manager\DatabaseManager;
 use BrahmjotSingh0\Portals\Manager\PortalManager;
 use CortexPE\Commando\PacketHooker;
+use BrahmjotSingh0\Portals\Manager\CacheManager;
 use pocketmine\plugin\PluginBase;
 
 /**
@@ -22,6 +23,9 @@ class Portals extends PluginBase
     /** @var DatabaseManager Manages database operations for portals. */
     private DatabaseManager $databaseManager;
 
+    /** @var CacheManager Manages caching of portal data to reduce database queries. */
+    private CacheManager $cacheManager;
+
     public function onEnable(): void
     {
         $this->saveDefaultConfig();
@@ -34,8 +38,9 @@ class Portals extends PluginBase
         }
 
         $this->portalManager = new PortalManager($this->databaseManager);
+        $this->cacheManager = new CacheManager($this);
 
-        $this->getServer()->getPluginManager()->registerEvents(new EventListener($this), $this);
+        $this->getServer()->getPluginManager()->registerEvents(new EventListener($this, $this->cacheManager), $this);
 
         $this->getServer()->getCommandMap()->register('portals', new PortalsCommand($this));
     }
@@ -58,5 +63,15 @@ class Portals extends PluginBase
     public function getDatabaseManager(): DatabaseManager
     {
         return $this->databaseManager;
+    }
+
+    /**
+     * Returns the CacheManager instance.
+     *
+     * @return CacheManager The cache manager.
+     */
+    public function getCacheManager(): CacheManager
+    {
+        return $this->cacheManager;
     }
 }

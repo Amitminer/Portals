@@ -53,7 +53,7 @@ class MsgSubCommand extends BaseSubCommand
         // Update the portal's message
         Await::f2c(function () use ($manager, $sender, $portalName, $message): \Generator {
             // Check if the portal exists
-            $isExists = yield from $manager->isPortalExists($portalName);
+            $isExists = yield from $manager->isPortalExists($portalName, $sender->getName());
             if (!$isExists) {
                 $sender->sendMessage("Portal '$portalName' does not exist.");
                 return;

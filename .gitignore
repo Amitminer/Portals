@@ -7,3 +7,5 @@
 /.idea/workspace.xml
 vendor
 composer.lock
+./vendor
+/.vscode
