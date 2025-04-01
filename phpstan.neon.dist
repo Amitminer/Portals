@@ -1,7 +1,0 @@
-parameters:
-    level: 6
-    paths:
-        - src
-    excludePaths:
-        - BrahmjotSingh0/Portals/libs/*
-        - vendor/*
