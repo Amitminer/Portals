@@ -4,7 +4,7 @@ main: BrahmjotSingh0\Portals\Portals
 version: 3.0.7
 api:
 - 5.3.0
-author: ["BrahmjotSingh0", "AmitxD"}
+author: ["BrahmjotSingh0", "AmitxD"]
 permissions:
   portals.command:
     description: Allows the player to use the portal commands
