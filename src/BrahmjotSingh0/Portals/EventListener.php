@@ -174,6 +174,9 @@ class EventListener implements Listener
                 }
                 
                 $player->sendMessage("Portal '{$state['portalName']}' created successfully with the selected positions.");
+                
+                // update the cache
+                $this->cacheManager->refreshCache(true);
             });
 
             $event->cancel();

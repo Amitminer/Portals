@@ -9,7 +9,8 @@
         "pocketmine/pocketmine-mp": "^5",
         "sof3/libasynql": "^4.2.0",
         "sof3/await-generator": "^3.6",
-        "paroxity/commando": "^3.2"
+        "paroxity/commando": "^3.2",
+        "sof3/pharynx": "^0.3.8"
     },
     "autoload": {
         "psr-0": {

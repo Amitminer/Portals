@@ -58,7 +58,7 @@ class AddCommandSubCommand extends BaseSubCommand
         }
 
         // Add the command to the portal
-        Await::f2c(function () use ($manager, $sender, $portalName, $command): \Generator {
+        Await::f2c(function () use ($manager, $sender, $portalName, $command, $plugin): \Generator {
             // Check if the portal exists
             $isExists = yield from $manager->isPortalExists($portalName, $sender->getName());
             if (!$isExists) {
@@ -84,6 +84,9 @@ class AddCommandSubCommand extends BaseSubCommand
             // Save the updated portal data
             yield from $manager->updatePortal($portalName, $portalData['data']);
             $sender->sendMessage("Command added to portal '$portalName': $command");
+
+            // Update the cache
+            $plugin->getCacheManager()->refreshCache(true);
         });
     }
 }

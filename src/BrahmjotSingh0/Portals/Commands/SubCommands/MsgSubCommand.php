@@ -51,7 +51,7 @@ class MsgSubCommand extends BaseSubCommand
         }
 
         // Update the portal's message
-        Await::f2c(function () use ($manager, $sender, $portalName, $message): \Generator {
+        Await::f2c(function () use ($manager, $sender, $portalName, $message, $plugin): \Generator {
             // Check if the portal exists
             $isExists = yield from $manager->isPortalExists($portalName, $sender->getName());
             if (!$isExists) {
@@ -75,6 +75,9 @@ class MsgSubCommand extends BaseSubCommand
             // Save the updated portal data
             yield from $manager->updatePortal($portalName, $portalData['data']);
             $sender->sendMessage("Message for portal '$portalName' has been updated to: $message");
+            
+            // Update the cache
+            $plugin->getCacheManager()->refreshCache(true);
         });
     }
 }
